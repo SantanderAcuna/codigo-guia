@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guía Laravel: Roles y Permisos | Storybook Style</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Storybook Color Palette */
+        --sb-dark: #1e1e1e;
+        --sb-darker: #151515;
+        --sb-gray: #333333;
+        --sb-light-gray: #444;
+        --sb-accent: #ff4785;
+        --sb-blue: #1ea7fd;
+        --sb-green: #66bf3c;
+        --sb-yellow: #f7e018;
+        --sb-purple: #9370db;
+        --sb-white: #ffffff;
+        --sb-text: #e6e6e6;
+        --sb-text-secondary: #999;
+
+        /* Typography */
+        --sb-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+
+        /* Spacing */
+        --sb-space-sm: 8px;
+        --sb-space-md: 16px;
+        --sb-space-lg: 24px;
+        --sb-space-xl: 32px;
+
+        /* Borders */
+        --sb-border: 1px solid #333;
+        --sb-border-radius: 8px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--sb-font);
+        background-color: var(--sb-dark);
+        color: var(--sb-text);
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Storybook Sidebar */
+      .sb-sidebar {
+        background-color: var(--sb-darker);
+        border-right: var(--sb-border);
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+        padding: var(--sb-space-lg);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sb-logo {
+        display: flex;
+        align-items: center;
+        gap: var(--sb-space-sm);
+        margin-bottom: var(--sb-space-xl);
+        padding-bottom: var(--sb-space-md);
+        border-bottom: var(--sb-border);
+      }
+
+      .sb-logo-icon {
+        color: var(--sb-accent);
+        font-size: 24px;
+      }
+
+      .sb-logo-text {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--sb-white);
+      }
+
+      .sb-search {
+        background: var(--sb-gray);
+        border: var(--sb-border);
+        border-radius: var(--sb-border-radius);
+        padding: var(--sb-space-sm) var(--sb-space-md);
+        margin-bottom: var(--sb-space-lg);
+        color: var(--sb-text);
+        font-family: var(--sb-font);
+      }
+
+      .sb-search::placeholder {
+        color: var(--sb-text-secondary);
+      }
+
+      .sb-nav-title {
+        color: var(--sb-text-secondary);
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 1px;
+        margin: var(--sb-space-lg) 0 var(--sb-space-md);
+      }
+
+      .sb-nav-list {
+        list-style: none;
+      }
+
+      .sb-nav-item {
+        margin-bottom: var(--sb-space-sm);
+      }
+
+      .sb-nav-link {
+        display: flex;
+        align-items: center;
+        padding: var(--sb-space-sm) var(--sb-space-md);
+        text-decoration: none;
+        color: var(--sb-text);
+        border-radius: var(--sb-border-radius);
+        transition: all 0.2s;
+        gap: var(--sb-space-sm);
+      }
+
+      .sb-nav-link:hover {
+        background-color: var(--sb-gray);
+      }
+
+      .sb-nav-link.active {
+        background-color: var(--sb-gray);
+        color: var(--sb-blue);
+        font-weight: 600;
+      }
+
+      .sb-nav-link i {
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Main Content Area */
+      .sb-content {
+        padding: var(--sb-space-xl);
+        max-width: 1000px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .sb-content-header {
+        margin-bottom: var(--sb-space-xl);
+      }
+
+      .sb-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: var(--sb-space-sm);
+        color: var(--sb-white);
+      }
+
+      .sb-subtitle {
+        font-size: 18px;
+        color: var(--sb-text-secondary);
+        margin-bottom: var(--sb-space-lg);
+      }
+
+      .sb-divider {
+        height: 1px;
+        background-color: var(--sb-light-gray);
+        margin: var(--sb-space-xl) 0;
+      }
+
+      /* Section Styles */
+      .sb-section {
+        margin-bottom: var(--sb-space-xl);
+        padding: var(--sb-space-lg);
+        background-color: var(--sb-darker);
+        border-radius: var(--sb-border-radius);
+        border: var(--sb-border);
+      }
+
+      .sb-section-header {
+        display: flex;
+        align-items: center;
+        gap: var(--sb-space-md);
+        margin-bottom: var(--sb-space-lg);
+        padding-bottom: var(--sb-space-md);
+        border-bottom: var(--sb-border);
+      }
+
+      .sb-section-icon {
+        background: linear-gradient(135deg, var(--sb-blue), var(--sb-purple));
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .sb-section-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--sb-white);
+      }
+
+      .sb-section-content {
+        line-height: 1.7;
+        color: var(--sb-text);
+      }
+
+      .sb-section-content p {
+        margin-bottom: var(--sb-space-md);
+      }
+
+      /* Storybook Components */
+      .sb-card {
+        background-color: var(--sb-darker);
+        border-radius: var(--sb-border-radius);
+        border: var(--sb-border);
+        padding: var(--sb-space-lg);
+        margin: var(--sb-space-lg) 0;
+      }
+
+      .sb-card-title {
+        display: flex;
+        align-items: center;
+        gap: var(--sb-space-sm);
+        color: var(--sb-blue);
+        margin-bottom: var(--sb-space-md);
+        font-weight: 600;
+      }
+
+      .sb-code-block {
+        background-color: #2d2d2d;
+        color: #f8f8f2;
+        padding: var(--sb-space-lg);
+        border-radius: var(--sb-border-radius);
+        margin: var(--sb-space-lg) 0;
+        overflow-x: auto;
+        font-family: "Fira Code", "Courier New", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        border: 1px solid #444;
+      }
+
+      .sb-terminal {
+        background-color: #1e1e1e;
+        color: #d4d4d4;
+        padding: var(--sb-space-lg);
+        border-radius: var(--sb-border-radius);
+        margin: var(--sb-space-lg) 0;
+        position: relative;
+        border: 1px solid #444;
+      }
+
+      .sb-terminal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: var(--sb-space-md);
+        border-bottom: 1px solid #444;
+        margin-bottom: var(--sb-space-md);
+      }
+
+      .sb-terminal-title {
+        font-weight: 600;
+        color: #cbd5e1;
+        font-size: 14px;
+      }
+
+      .sb-terminal-controls {
+        display: flex;
+        gap: var(--sb-space-sm);
+      }
+
+      .sb-terminal-control {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .sb-terminal-close {
+        background-color: #ef4444;
+      }
+
+      .sb-terminal-minimize {
+        background-color: #f59e0b;
+      }
+
+      .sb-terminal-maximize {
+        background-color: #10b981;
+      }
+
+      .sb-terminal-content {
+        line-height: 1.8;
+        font-family: "Fira Code", "Courier New", monospace;
+        font-size: 14px;
+      }
+
+      .sb-terminal-content .prompt {
+        color: #86efac;
+      }
+
+      .sb-terminal-content .command {
+        color: #60a5fa;
+      }
+
+      .sb-terminal-content .comment {
+        color: #94a3b8;
+      }
+
+      /* Flow Diagram */
+      .sb-flow {
+        background-color: var(--sb-darker);
+        padding: var(--sb-space-lg);
+        border-radius: var(--sb-border-radius);
+        border: var(--sb-border);
+        margin: var(--sb-space-lg) 0;
+      }
+
+      .sb-flow-title {
+        font-weight: 600;
+        color: var(--sb-blue);
+        margin-bottom: var(--sb-space-md);
+        display: flex;
+        align-items: center;
+        gap: var(--sb-space-sm);
+      }
+
+      .sb-flow-steps {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sb-space-lg);
+        position: relative;
+      }
+
+      .sb-flow-steps::before {
+        content: "";
+        position: absolute;
+        left: 24px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: var(--sb-light-gray);
+      }
+
+      .sb-flow-step {
+        display: flex;
+        gap: var(--sb-space-md);
+        position: relative;
+      }
+
+      .sb-flow-icon {
+        background: linear-gradient(135deg, var(--sb-blue), var(--sb-purple));
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        z-index: 1;
+        font-weight: 600;
+      }
+
+      .sb-flow-content {
+        padding-bottom: var(--sb-space-md);
+      }
+
+      .sb-flow-content h4 {
+        margin-bottom: var(--sb-space-sm);
+        color: var(--sb-white);
+        font-weight: 600;
+      }
+
+      /* Best Practices Grid */
+      .sb-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--sb-space-lg);
+        margin-top: var(--sb-space-lg);
+      }
+
+      .sb-grid-item {
+        background-color: var(--sb-darker);
+        border: var(--sb-border);
+        border-radius: var(--sb-border-radius);
+        padding: var(--sb-space-lg);
+        transition: all 0.3s;
+      }
+
+      .sb-grid-item:hover {
+        transform: translateY(-5px);
+        border-color: var(--sb-blue);
+      }
+
+      .sb-grid-icon {
+        background: linear-gradient(135deg, var(--sb-blue), var(--sb-purple));
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: var(--sb-space-md);
+      }
+
+      .sb-grid-title {
+        font-size: 18px;
+        color: var(--sb-white);
+        margin-bottom: var(--sb-space-sm);
+        font-weight: 600;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 900px) {
+        body {
+          grid-template-columns: 1fr;
+        }
+
+        .sb-sidebar {
+          display: none;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sb-content {
+          padding: var(--sb-space-md);
+        }
+
+        .sb-section-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .sb-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Storybook Sidebar -->
+    <aside class="sb-sidebar">
+      <div class="sb-logo">
+        <i class="fas fa-book sb-logo-icon"></i>
+        <div class="sb-logo-text">Laravel Guide</div>
+      </div>
+
+      <input type="text" class="sb-search" placeholder="Buscar en la guía..." />
+
+      <div class="sb-nav-title">Conceptos Básicos</div>
+      <ul class="sb-nav-list">
+        <li class="sb-nav-item">
+          <a href="#section1" class="sb-nav-link active">
+            <i class="fas fa-question-circle"></i>
+            <span>¿Qué son Roles y Permisos?</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section2" class="sb-nav-link">
+            <i class="fas fa-download"></i>
+            <span>Instalación y Configuración</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sb-nav-title">Implementación</div>
+      <ul class="sb-nav-list">
+        <li class="sb-nav-item">
+          <a href="#section3" class="sb-nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Configuración Detallada</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section4" class="sb-nav-link">
+            <i class="fas fa-user"></i>
+            <span>Modelo User + Trait</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section5" class="sb-nav-link">
+            <i class="fas fa-seedling"></i>
+            <span>Seeder Inicial</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section6" class="sb-nav-link">
+            <i class="fas fa-shield-alt"></i>
+            <span>Middleware y Rutas</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sb-nav-title">Flujo y Buenas Prácticas</div>
+      <ul class="sb-nav-list">
+        <li class="sb-nav-item">
+          <a href="#section7" class="sb-nav-link">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Flujo de una Petición</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section8" class="sb-nav-link">
+            <i class="fas fa-comment-alt"></i>
+            <span>Personalizar Mensajes</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section9" class="sb-nav-link">
+            <i class="fas fa-check-circle"></i>
+            <span>Buenas Prácticas</span>
+          </a>
+        </li>
+        <li class="sb-nav-item">
+          <a href="#section10" class="sb-nav-link">
+            <i class="fas fa-expand"></i>
+            <span>Más allá del Modelo User</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="sb-content">
+      <div class="sb-content-header">
+        <h1 class="sb-title">Guía de Roles y Permisos en Laravel</h1>
+        <p class="sb-subtitle">
+          Implementación profesional con Spatie Permission
+        </p>
+        <div class="sb-divider"></div>
+      </div>
+
+      <!-- Section 1: ¿Qué son Roles y Permisos? -->
+      <section id="section1" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-question-circle"></i>
+          </div>
+          <h2 class="sb-section-title">¿Qué son los Roles y Permisos?</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>
+            En cualquier aplicación, necesitamos controlar lo que cada usuario
+            puede hacer. Para esto usamos:
+          </p>
+
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-user-tag"></i>
+              </div>
+              <h3 class="sb-grid-title">Roles</h3>
+              <p>
+                Un conjunto de "etiquetas" que defines para agrupar
+                responsabilidades. Ejemplos: admin, editor, user.
+              </p>
+            </div>
+
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-key"></i>
+              </div>
+              <h3 class="sb-grid-title">Permisos</h3>
+              <p>
+                Acciones concretas que un usuario puede realizar. Ejemplos:
+                crear usuario, eliminar post, editar contenido.
+              </p>
+            </div>
+          </div>
+
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-lightbulb"></i>
+              <span>Analogía para entenderlo fácil:</span>
+            </div>
+            <p>Imagina una empresa:</p>
+            <ul>
+              <li>
+                <strong>Roles</strong> son los puestos: Gerente, Empleado,
+                Practicante
+              </li>
+              <li>
+                <strong>Permisos</strong> son las llaves: acceso a la sala de
+                servidores, permiso para firmar cheques, acceso al archivo
+                confidencial
+              </li>
+            </ul>
+            <p>
+              Así como un empleado tiene ciertas llaves según su puesto, en
+              Laravel asignamos permisos a roles y roles a usuarios.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Instalación y Configuración -->
+      <section id="section2" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-download"></i>
+          </div>
+          <h2 class="sb-section-title">Instalación y Configuración</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>Vamos a instalar todo lo necesario paso a paso:</p>
+
+          <div class="sb-terminal">
+            <div class="sb-terminal-header">
+              <div class="sb-terminal-title">Terminal</div>
+              <div class="sb-terminal-controls">
+                <div class="sb-terminal-control sb-terminal-close"></div>
+                <div class="sb-terminal-control sb-terminal-minimize"></div>
+                <div class="sb-terminal-control sb-terminal-maximize"></div>
+              </div>
+            </div>
+            <div class="sb-terminal-content">
+              <div>
+                <span class="prompt">$</span>
+                <span class="command"
+                  >composer create-project laravel/laravel:^12 mi-proyecto</span
+                >
+              </div>
+              <div class="comment"># Creamos un nuevo proyecto Laravel 12</div>
+              <br />
+              <div>
+                <span class="prompt">$</span>
+                <span class="command">cd mi-proyecto</span>
+              </div>
+              <div class="comment"># Entramos al directorio del proyecto</div>
+              <br />
+              <div>
+                <span class="prompt">$</span>
+                <span class="command"
+                  >composer require spatie/laravel-permission:^6.0</span
+                >
+              </div>
+              <div class="comment">
+                # Instalamos el paquete Spatie Permission
+              </div>
+              <br />
+              <div>
+                <span class="prompt">$</span>
+                <span class="command"
+                  >php artisan vendor:publish
+                  --provider="Spatie\Permission\PermissionServiceProvider"</span
+                >
+              </div>
+              <div class="comment"># Publicamos archivos de configuración</div>
+              <br />
+              <div>
+                <span class="prompt">$</span>
+                <span class="command">php artisan migrate</span>
+              </div>
+              <div class="comment">
+                # Ejecutamos las migraciones para crear tablas
+              </div>
+            </div>
+          </div>
+
+          <h3>Configuración de la base de datos (.env)</h3>
+          <p>Edita el archivo <code>.env</code> con tus datos de conexión:</p>
+
+          <div class="sb-code-block">
+            <span style="color: #6a9955"># Configuración de base de datos</span
+            ><br />
+            <span style="color: #9cdcfe">DB_CONNECTION</span>=<span
+              style="color: #ce9178"
+              >mysql</span
+            ><br />
+            <span style="color: #9cdcfe">DB_HOST</span>=<span
+              style="color: #ce9178"
+              >127.0.0.1</span
+            ><br />
+            <span style="color: #9cdcfe">DB_PORT</span>=<span
+              style="color: #ce9178"
+              >3306</span
+            ><br />
+            <span style="color: #9cdcfe">DB_DATABASE</span>=<span
+              style="color: #ce9178"
+              >nombre_de_tu_bd</span
+            ><br />
+            <span style="color: #9cdcfe">DB_USERNAME</span>=<span
+              style="color: #ce9178"
+              >root</span
+            ><br />
+            <span style="color: #9cdcfe">DB_PASSWORD</span>=<span
+              style="color: #ce9178"
+              >tu_contraseña</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Configuración Detallada -->
+      <section id="section3" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <h2 class="sb-section-title">Configuración Detallada</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>Configuramos el paquete en <code>config/permission.php</code>:</p>
+
+          <div class="sb-code-block">
+            <span style="color: #c586c0">return</span> [<br />
+            &nbsp;&nbsp;<span style="color: #ce9178">'models'</span> => [<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178"
+              >'permission'</span
+            >
+            =>
+            <span style="color: #4ec9b0"
+              >Spatie\Permission\Models\Permission</span
+            >::<span style="color: #dcdcaa">class</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178">'role'</span>
+            =>
+            <span style="color: #4ec9b0">Spatie\Permission\Models\Role</span
+            >::<span style="color: #dcdcaa">class</span>,<br />
+            &nbsp;&nbsp;],<br /><br />
+            &nbsp;&nbsp;<span style="color: #ce9178">'cache'</span> => [<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178"
+              >'expiration_time'</span
+            >
+            => <span style="color: #b5cea8">60</span> *
+            <span style="color: #b5cea8">24</span>,
+            <span style="color: #6a9955">// 24 horas</span><br />
+            &nbsp;&nbsp;],<br />
+            ];
+          </div>
+
+          <p>
+            Importante: Después de cambiar roles o permisos, limpia la cache:
+          </p>
+
+          <div class="sb-terminal">
+            <div class="sb-terminal-header">
+              <div class="sb-terminal-title">Terminal</div>
+            </div>
+            <div class="sb-terminal-content">
+              <div>
+                <span class="prompt">$</span>
+                <span class="command">php artisan permission:cache-reset</span>
+              </div>
+              <div class="comment"># Limpiamos la cache de permisos</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Modelo User + Trait -->
+      <section id="section4" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-user"></i>
+          </div>
+          <h2 class="sb-section-title">Modelo User + Trait</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>Editamos el modelo User para agregar funcionalidad de roles:</p>
+
+          <div class="sb-code-block">
+            <span style="color: #569cd6">&lt;?php</span><br /><br />
+            <span style="color: #569cd6">namespace</span>
+            <span style="color: #4ec9b0">App\Models</span>;<br /><br />
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">Illuminate\Foundation\Auth\User</span>
+            <span style="color: #569cd6">as</span>
+            <span style="color: #4ec9b0">Authenticatable</span>;<br />
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">Spatie\Permission\Traits\HasRoles</span
+            >; <span style="color: #6a9955">// ¡Importante!</span><br /><br />
+            <span style="color: #569cd6">class</span>
+            <span style="color: #4ec9b0">User</span>
+            <span style="color: #569cd6">extends</span>
+            <span style="color: #4ec9b0">Authenticatable</span><br />
+            {<br />
+            &nbsp;&nbsp;<span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">HasRoles</span>;
+            <span style="color: #6a9955">// Agregamos el trait</span
+            ><br /><br />
+            &nbsp;&nbsp;<span style="color: #6a9955"
+              >// Campos que se pueden llenar</span
+            ><br />
+            &nbsp;&nbsp;<span style="color: #569cd6">protected</span>
+            <span style="color: #569cd6">$fillable</span> = [<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178">'name'</span
+            >,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178">'email'</span
+            >,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178"
+              >'password'</span
+            ><br />
+            &nbsp;&nbsp;];<br />
+            }
+          </div>
+
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-lightbulb"></i>
+              <span>¿Por qué esto es importante?</span>
+            </div>
+            <p>
+              El trait <code>HasRoles</code> es como agregar un "superpoder" a
+              nuestro modelo User. Sin esto, nuestros usuarios no podrían tener
+              roles ni permisos.
+            </p>
+            <p>
+              Es como darle a un empleado nuevo su credencial de acceso: sin
+              ella, no puede entrar ni hacer nada.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Seeder Inicial -->
+      <section id="section5" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-seedling"></i>
+          </div>
+          <h2 class="sb-section-title">Seeder Inicial</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>Creamos roles y permisos iniciales con un seeder:</p>
+
+          <div class="sb-code-block">
+            <span style="color: #569cd6">&lt;?php</span><br /><br />
+            <span style="color: #569cd6">namespace</span>
+            <span style="color: #4ec9b0">Database\Seeders</span>;<br /><br />
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">Illuminate\Database\Seeder</span
+            >;<br />
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">Spatie\Permission\Models\Role</span
+            >;<br />
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0"
+              >Spatie\Permission\Models\Permission</span
+            >;<br /><br />
+            <span style="color: #569cd6">class</span>
+            <span style="color: #4ec9b0">RolePermissionSeeder</span>
+            <span style="color: #569cd6">extends</span>
+            <span style="color: #4ec9b0">Seeder</span><br />
+            {<br />
+            &nbsp;&nbsp;<span style="color: #569cd6">public function</span>
+            <span style="color: #dcdcaa">run</span>()<br />
+            &nbsp;&nbsp;{<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #6a9955"
+              >// 1. Crear permisos</span
+            ><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6"
+              >$permisos</span
+            >
+            = [<span style="color: #ce9178">'ver usuarios'</span>,
+            <span style="color: #ce9178">'crear usuarios'</span>,
+            <span style="color: #ce9178">'editar usuarios'</span>,
+            <span style="color: #ce9178">'eliminar usuarios'</span>];<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6">foreach</span>
+            (<span style="color: #569cd6">$permisos</span>
+            <span style="color: #569cd6">as</span>
+            <span style="color: #569cd6">$permiso</span>) {<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #4ec9b0"
+              >Permission</span
+            >::<span style="color: #dcdcaa">firstOrCreate</span>([<span
+              style="color: #ce9178"
+              >'name'</span
+            >
+            => <span style="color: #569cd6">$permiso</span>]);<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #6a9955"
+              >// 2. Crear rol Admin con todos los permisos</span
+            ><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6">$admin</span> =
+            <span style="color: #4ec9b0">Role</span>::<span
+              style="color: #dcdcaa"
+              >firstOrCreate</span
+            >([<span style="color: #ce9178">'name'</span> =>
+            <span style="color: #ce9178">'admin'</span>]);<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6">$admin</span
+            >-><span style="color: #dcdcaa">syncPermissions</span>(<span
+              style="color: #569cd6"
+              >$permisos</span
+            >);<br /><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #6a9955"
+              >// 3. Crear rol Editor con permisos limitados</span
+            ><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6">$editor</span>
+            = <span style="color: #4ec9b0">Role</span>::<span
+              style="color: #dcdcaa"
+              >firstOrCreate</span
+            >([<span style="color: #ce9178">'name'</span> =>
+            <span style="color: #ce9178">'editor'</span>]);<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6">$editor</span
+            >-><span style="color: #dcdcaa">syncPermissions</span>([<span
+              style="color: #ce9178"
+              >'ver usuarios'</span
+            >, <span style="color: #ce9178">'editar usuarios'</span>]);<br />
+            &nbsp;&nbsp;}<br />
+            }
+          </div>
+
+          <p>Ejecutamos el seeder:</p>
+
+          <div class="sb-terminal">
+            <div class="sb-terminal-header">
+              <div class="sb-terminal-title">Terminal</div>
+            </div>
+            <div class="sb-terminal-content">
+              <div>
+                <span class="prompt">$</span>
+                <span class="command"
+                  >php artisan db:seed --class=RolePermissionSeeder</span
+                >
+              </div>
+              <div class="comment"># Creamos roles y permisos iniciales</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: Middleware y Rutas -->
+      <section id="section6" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h2 class="sb-section-title">Middleware y Rutas Protegidas</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>
+            Primero registramos los middlewares en
+            <code>bootstrap/app.php</code>:
+          </p>
+
+          <div class="sb-code-block">
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0"
+              >Illuminate\Foundation\Configuration\Middleware</span
+            >;<br /><br />
+            <span style="color: #569cd6">return</span>
+            <span style="color: #4ec9b0">Application</span>::<span
+              style="color: #dcdcaa"
+              >configure</span
+            >(<span style="color: #569cd6">basePath</span>:
+            <span style="color: #dcdcaa">dirname</span>(<span
+              style="color: #569cd6"
+              >__DIR__</span
+            >))<br />
+            &nbsp;&nbsp;-><span style="color: #dcdcaa">withMiddleware</span
+            >(<span style="color: #569cd6">function</span> (<span
+              style="color: #4ec9b0"
+              >Middleware</span
+            >
+            <span style="color: #569cd6">$middleware</span>) {<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #6a9955"
+              >// Registrar middlewares de Spatie</span
+            ><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #569cd6"
+              >$middleware</span
+            >-><span style="color: #dcdcaa">alias</span>([<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178"
+              >'role'</span
+            >
+            =>
+            <span style="color: #4ec9b0"
+              >\Spatie\Permission\Middleware\RoleMiddleware</span
+            >::<span style="color: #dcdcaa">class</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ce9178"
+              >'permission'</span
+            >
+            =>
+            <span style="color: #4ec9b0"
+              >\Spatie\Permission\Middleware\PermissionMiddleware</span
+            >::<span style="color: #dcdcaa">class</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;]);<br />
+            &nbsp;&nbsp;});
+          </div>
+
+          <p>Ahora protegemos rutas en <code>routes/web.php</code>:</p>
+
+          <div class="sb-code-block">
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0"
+              >App\Http\Controllers\AdminController</span
+            >;<br /><br />
+            <span style="color: #6a9955"
+              >// Ruta solo accesible para admins</span
+            ><br />
+            <span style="color: #4ec9b0">Route</span>::<span
+              style="color: #dcdcaa"
+              >get</span
+            >(<span style="color: #ce9178">'/admin'</span>, [<span
+              style="color: #4ec9b0"
+              >AdminController</span
+            >::<span style="color: #dcdcaa">class</span>,
+            <span style="color: #ce9178">'index'</span>])<br />
+            &nbsp;&nbsp;-><span style="color: #dcdcaa">middleware</span>([<span
+              style="color: #ce9178"
+              >'auth'</span
+            >, <span style="color: #ce9178">'role:admin'</span>]);<br /><br />
+            <span style="color: #6a9955"
+              >// Ruta para crear usuarios (requiere permiso específico)</span
+            ><br />
+            <span style="color: #4ec9b0">Route</span>::<span
+              style="color: #dcdcaa"
+              >post</span
+            >(<span style="color: #ce9178">'/users'</span>, [<span
+              style="color: #4ec9b0"
+              >UserController</span
+            >::<span style="color: #dcdcaa">class</span>,
+            <span style="color: #ce9178">'store'</span>])<br />
+            &nbsp;&nbsp;-><span style="color: #dcdcaa">middleware</span>([<span
+              style="color: #ce9178"
+              >'auth'</span
+            >,
+            <span style="color: #ce9178">'permission:crear usuarios'</span>]);
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 7: Flujo de una Petición -->
+      <section id="section7" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <h2 class="sb-section-title">Flujo de una Petición</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <div class="sb-flow">
+            <div class="sb-flow-title">
+              <i class="fas fa-project-diagram"></i>
+              <span
+                >¿Qué pasa cuando un usuario accede a una ruta protegida?</span
+              >
+            </div>
+
+            <div class="sb-flow-steps">
+              <div class="sb-flow-step">
+                <div class="sb-flow-icon">1</div>
+                <div class="sb-flow-content">
+                  <h4>Usuario hace una petición</h4>
+                  <p>
+                    El usuario intenta acceder a una ruta protegida como /admin
+                  </p>
+                </div>
+              </div>
+
+              <div class="sb-flow-step">
+                <div class="sb-flow-icon">2</div>
+                <div class="sb-flow-content">
+                  <h4>Middleware auth verifica autenticación</h4>
+                  <p>¿Está el usuario logueado? Si no → Error 401</p>
+                </div>
+              </div>
+
+              <div class="sb-flow-step">
+                <div class="sb-flow-icon">3</div>
+                <div class="sb-flow-content">
+                  <h4>Middleware role verifica permisos</h4>
+                  <p>¿Tiene el usuario el rol "admin"? Si no → Error 403</p>
+                </div>
+              </div>
+
+              <div class="sb-flow-step">
+                <div class="sb-flow-icon">4</div>
+                <div class="sb-flow-content">
+                  <h4>Acceso concedido</h4>
+                  <p>
+                    Si todo está bien, se ejecuta el controlador y se muestra la
+                    vista
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3>Diferencias entre errores:</h3>
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-ban"></i>
+              </div>
+              <h3 class="sb-grid-title">401 Unauthorized</h3>
+              <p>
+                "No estás identificado" (como cuando intentas entrar a un
+                edificio sin credencial)
+              </p>
+            </div>
+
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-lock"></i>
+              </div>
+              <h3 class="sb-grid-title">403 Forbidden</h3>
+              <p>
+                "No tienes permiso" (como cuando tienes credencial pero no para
+                esa área específica)
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 10: Más allá del Modelo User -->
+      <section id="section10" class="sb-section">
+        <div class="sb-section-header">
+          <div class="sb-section-icon">
+            <i class="fas fa-expand"></i>
+          </div>
+          <h2 class="sb-section-title">Más allá del Modelo User</h2>
+        </div>
+
+        <div class="sb-section-content">
+          <p>
+            ¿Solo se usa con el modelo User? ¡No! Puedes usarlo con cualquier
+            modelo que sea Autenticatable:
+          </p>
+
+          <div class="sb-code-block">
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">Spatie\Permission\Traits\HasRoles</span
+            >;<br />
+            <span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">Illuminate\Foundation\Auth\User</span>
+            <span style="color: #569cd6">as</span>
+            <span style="color: #4ec9b0">Authenticatable</span>;<br /><br />
+            <span style="color: #569cd6">class</span>
+            <span style="color: #4ec9b0">Admin</span>
+            <span style="color: #569cd6">extends</span>
+            <span style="color: #4ec9b0">Authenticatable</span><br />
+            {<br />
+            &nbsp;&nbsp;<span style="color: #569cd6">use</span>
+            <span style="color: #4ec9b0">HasRoles</span>;
+            <span style="color: #6a9955">// ¡El mismo trait!</span><br />
+            <br />
+            &nbsp;&nbsp;<span style="color: #569cd6">protected</span>
+            <span style="color: #569cd6">$guard</span> =
+            <span style="color: #ce9178">'admin'</span>;
+            <span style="color: #6a9955">// Guard personalizado</span><br />
+            }
+          </div>
+
+          <h3>Casos de uso reales:</h3>
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-cogs"></i>
+              </div>
+              <h3 class="sb-grid-title">Backoffice</h3>
+              <p>Modelo Admin para panel de administración</p>
+            </div>
+
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <h3 class="sb-grid-title">Empleados</h3>
+              <p>Modelo Employee para sistema interno de empresas</p>
+            </div>
+
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <h3 class="sb-grid-title">APIs multiempresa</h3>
+              <p>Modelo TenantUser con roles específicos por compañía</p>
+            </div>
+
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-plug"></i>
+              </div>
+              <h3 class="sb-grid-title">Clientes de API</h3>
+              <p>Modelo ApiClient para integraciones de terceros</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div
+        style="
+          text-align: center;
+          margin-top: var(--sb-space-xl);
+          color: var(--sb-text-secondary);
+          font-size: 14px;
+        "
+      >
+        <p>
+          <a
+            href="https://github.com/SantanderAcuna"
+            style="color: var(--sb-blue); text-decoration: none"
+            >© Desarrollado por Jose Acuña</a
+          >
+          <script>
+            document.write(new Date().getFullYear());
+          </script>
+          | Guía Profesional: Laravel Passport + Vue 3
+        </p>
+      </div>
+    </main>
+
+    <script>
+      // Navegación suave y activación de secciones
+      document.addEventListener("DOMContentLoaded", function () {
+        // Manejar clics en enlaces de la barra lateral
+        const sidebarLinks = document.querySelectorAll(".sb-nav-link");
+
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Remover clase activa de todos los enlaces
+            sidebarLinks.forEach((el) => el.classList.remove("active"));
+
+            // Agregar clase activa al enlace actual
+            this.classList.add("active");
+
+            // Obtener el ID de la sección objetivo
+            const targetId = this.getAttribute("href");
+            const targetSection = document.querySelector(targetId);
+
+            if (targetSection) {
+              // Desplazamiento suave hacia la sección
+              window.scrollTo({
+                top: targetSection.offsetTop - 100,
+                behavior: "smooth",
+              });
+            }
+          });
+        });
+
+        // Actualizar enlace activo al hacer scroll
+        window.addEventListener("scroll", function () {
+          const sections = document.querySelectorAll(".sb-section");
+          let currentSection = "";
+
+          sections.forEach((section) => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+
+            // Verificar si la sección está visible en la ventana
+            if (
+              window.scrollY >= sectionTop - 150 &&
+              window.scrollY < sectionTop + sectionHeight - 150
+            ) {
+              currentSection = section.getAttribute("id");
+            }
+          });
+
+          // Actualizar el enlace activo en la barra lateral
+          sidebarLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${currentSection}`) {
+              link.classList.add("active");
+            }
+          });
+        });
+
+        // Activar el enlace de la primera sección al cargar
+        if (window.location.hash) {
+          const targetLink = document.querySelector(
+            `.sb-nav-link[href="${window.location.hash}"]`
+          );
+          if (targetLink) {
+            targetLink.classList.add("active");
+          }
+        } else {
+          sidebarLinks[0].classList.add("active");
+        }
+
+        // Simular búsqueda en la barra de búsqueda
+        const searchInput = document.querySelector(".sb-search");
+        searchInput.addEventListener("input", function () {
+          const searchTerm = this.value.toLowerCase();
+          const sections = document.querySelectorAll(".sb-section");
+
+          sections.forEach((section) => {
+            const sectionContent = section.textContent.toLowerCase();
+            if (sectionContent.includes(searchTerm)) {
+              section.style.display = "block";
+            } else {
+              section.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

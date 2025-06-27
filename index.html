@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guías Laravel</title>
+    <style>
+      /* Variables y reset */
+      :root {
+        --card-bg: #ffffff;
+        --card-shadow: rgba(0, 0, 0, 0.1);
+        --card-radius: 8px;
+        --primary: #1e40af;
+        --primary-light: #3b82f6;
+        --text-color: #333333;
+        --gap: 1rem;
+        --bg-page: #f3f4f6;
+        --nav-bg: #f8f9fa;
+        --nav-border: #dee2e6;
+        --hover-bg: #e9ecef;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* BODY */
+      body {
+        font-family: sans-serif;
+        background: var(--bg-page);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        padding: var(--gap);
+        gap: var(--gap);
+      }
+
+      /* NAVBAR */
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 800px;
+        padding: 0.5rem 1rem;
+        background-color: var(--nav-bg);
+        border-bottom: 1px solid var(--nav-border);
+        border-radius: var(--card-radius) var(--card-radius) 0 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .navbar-brand {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--text-color);
+        text-decoration: none;
+      }
+      .nav {
+        display: flex;
+        list-style: none;
+        gap: 0.5rem;
+      }
+      .nav-item {
+        position: relative;
+      }
+      .nav-link {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: #495057;
+        text-decoration: none;
+        border-radius: 0.25rem;
+        transition: background 0.2s;
+        cursor: pointer;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: var(--hover-bg);
+        color: #212529;
+      }
+
+      /* DROPDOWN */
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 10rem;
+        background: #fff;
+        border: 1px solid var(--nav-border);
+        border-radius: 0.25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(0.5rem);
+        transition: opacity 0.2s, transform 0.2s;
+        z-index: 10;
+      }
+      .dropdown-menu.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+      .dropdown-item {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: #495057;
+        text-decoration: none;
+      }
+      .dropdown-item:hover {
+        background-color: var(--hover-bg);
+        color: #212529;
+      }
+
+      /* TARJETAS */
+      .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: var(--gap);
+        width: 100%;
+        max-width: 800px;
+      }
+      .card {
+        display: block;
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        box-shadow: 0 4px 8px var(--card-shadow);
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+      .card h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+      }
+      .card p {
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      @media (max-width: 480px) {
+        .card {
+          padding: 1rem;
+        }
+        .card h3 {
+          font-size: 1rem;
+        }
+        .card p {
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="#" class="navbar-brand">Guías Laravel</a>
+      <ul class="nav">
+        <li class="nav-item">
+          <a href="passport.html" class="nav-link">Guía Laravel: Passports</a>
+        </li>
+        <li class="nav-item">
+          <a href="permission.html" class="nav-link"
+            >Guía Laravel: Roles y Permisos</a
+          >
+        </li>
+        <li class="nav-item dropdown">
+          <span class="nav-link">Más recursos ▾</span>
+          <ul class="dropdown-menu">
+            <li><a href="#otro1" class="dropdown-item">Recurso 1</a></li>
+            <li><a href="#otro2" class="dropdown-item">Recurso 2</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="cards-container">
+      <a href="passport.html" class="card">
+        <h3>Guía Laravel: Passports</h3>
+        <p>Implementa OAuth2 con Passport paso a paso</p>
+      </a>
+      <a href="permission.html" class="card">
+        <h3>Guía Laravel: Roles y Permisos</h3>
+        <p>Gestiona acceso y seguridad con Spatie</p>
+      </a>
+    </div>
+
+    <script>
+      // Marcar enlace activo
+      document.querySelectorAll(".nav-link").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          document
+            .querySelectorAll(".nav-link")
+            .forEach((l) => l.classList.remove("active"));
+          e.currentTarget.classList.add("active");
+        });
+      });
+
+      // Toggle dropdown
+      const dropdown = document.querySelector(".dropdown");
+      const menu = dropdown.querySelector(".dropdown-menu");
+      dropdown.addEventListener("click", () => menu.classList.toggle("show"));
+      document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) menu.classList.remove("show");
+      });
+    </script>
+  </body>
+</html>

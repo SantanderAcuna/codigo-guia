@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía Profesional: Laravel Passport + Vue 3 | Storybook Style</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Storybook Color Palette */
+      --sb-dark: #1e1e1e;
+      --sb-darker: #151515;
+      --sb-gray: #333333;
+      --sb-light-gray: #444;
+      --sb-accent: #ff4785;
+      --sb-blue: #1ea7fd;
+      --sb-green: #66bf3c;
+      --sb-yellow: #f7e018;
+      --sb-purple: #9370db;
+      --sb-white: #ffffff;
+      --sb-text: #e6e6e6;
+      --sb-text-secondary: #999;
+      --sb-laravel: #f9322c;
+      --sb-vue: #42b883;
+      
+      /* Typography */
+      --sb-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --sb-font-mono: 'JetBrains Mono', monospace;
+      
+      /* Spacing */
+      --sb-space-xs: 6px;
+      --sb-space-sm: 12px;
+      --sb-space-md: 16px;
+      --sb-space-lg: 24px;
+      --sb-space-xl: 32px;
+      --sb-space-xxl: 48px;
+      
+      /* Borders */
+      --sb-border: 1px solid #333;
+      --sb-border-radius: 8px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: var(--sb-font);
+      background-color: var(--sb-dark);
+      color: var(--sb-text);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+    
+    /* Storybook Sidebar */
+    .sb-sidebar {
+      background-color: var(--sb-darker);
+      border-right: var(--sb-border);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      padding: var(--sb-space-lg);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+    
+    .sb-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--sb-space-sm);
+      margin-bottom: var(--sb-space-xl);
+      padding-bottom: var(--sb-space-md);
+      border-bottom: var(--sb-border);
+    }
+    
+    .sb-logo-icon {
+      font-size: 24px;
+      background: linear-gradient(135deg, var(--sb-laravel), var(--sb-vue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .sb-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--sb-white);
+    }
+    
+    .sb-nav-title {
+      color: var(--sb-text-secondary);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin: var(--sb-space-lg) 0 var(--sb-space-md);
+    }
+    
+    .sb-nav-list {
+      list-style: none;
+    }
+    
+    .sb-nav-item {
+      margin-bottom: var(--sb-space-sm);
+    }
+    
+    .sb-nav-link {
+      display: flex;
+      align-items: center;
+      padding: var(--sb-space-sm) var(--sb-space-md);
+      text-decoration: none;
+      color: var(--sb-text);
+      border-radius: var(--sb-border-radius);
+      transition: all 0.2s;
+      gap: var(--sb-space-sm);
+      font-size: 14px;
+      position: relative;
+    }
+    
+    .sb-nav-link:hover {
+      background-color: var(--sb-gray);
+    }
+    
+    .sb-nav-link.active {
+      background-color: var(--sb-gray);
+      color: var(--sb-blue);
+      font-weight: 600;
+    }
+    
+    .sb-nav-link i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    .sb-nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 3px;
+      background: var(--sb-blue);
+      border-radius: 0 3px 3px 0;
+    }
+    
+    /* Main Content Area */
+    .sb-content {
+      padding: var(--sb-space-xl);
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+      scroll-behavior: smooth;
+    }
+    
+    .sb-content-header {
+      margin-bottom: var(--sb-space-xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: var(--sb-space-md);
+      border-bottom: var(--sb-border);
+    }
+    
+    .sb-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--sb-white);
+      display: flex;
+      align-items: center;
+      gap: var(--sb-space-sm);
+    }
+    
+    .sb-title-icon {
+      background: linear-gradient(135deg, var(--sb-blue), var(--sb-purple));
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    .sb-header-actions {
+      display: flex;
+      gap: var(--sb-space-sm);
+    }
+    
+    .sb-btn {
+      padding: var(--sb-space-sm) var(--sb-space-md);
+      border-radius: var(--sb-border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sb-space-sm);
+      font-size: 14px;
+    }
+    
+    .sb-btn-primary {
+      background-color: var(--sb-blue);
+      color: white;
+    }
+    
+    .sb-btn-primary:hover {
+      background-color: #0d8dd9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .sb-btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--sb-light-gray);
+      color: var(--sb-text);
+    }
+    
+    .sb-btn-outline:hover {
+      background-color: var(--sb-gray);
+      transform: translateY(-2px);
+    }
+    
+    /* Section Styles */
+    .sb-section {
+      margin-bottom: var(--sb-space-xl);
+      padding: var(--sb-space-lg);
+      background-color: var(--sb-darker);
+      border-radius: var(--sb-border-radius);
+      border: var(--sb-border);
+      scroll-margin-top: 120px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .sb-section:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .sb-section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--sb-space-md);
+      margin-bottom: var(--sb-space-lg);
+      padding-bottom: var(--sb-space-md);
+      border-bottom: var(--sb-border);
+    }
+    
+    .sb-section-icon {
+      background: linear-gradient(135deg, var(--sb-blue), var(--sb-purple));
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .sb-section-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--sb-white);
+    }
+    
+    .sb-section-content {
+      line-height: 1.7;
+      color: var(--sb-text);
+    }
+    
+    .sb-section-content p {
+      margin-bottom: var(--sb-space-md);
+    }
+    
+    /* Storybook Components */
+    .sb-card {
+      background-color: var(--sb-darker);
+      border-radius: var(--sb-border-radius);
+      border: var(--sb-border);
+      padding: var(--sb-space-lg);
+      margin: var(--sb-space-lg) 0;
+      transition: all 0.3s;
+    }
+    
+    .sb-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    .sb-card-title {
+      display: flex;
+      align-items: center;
+      gap: var(--sb-space-sm);
+      color: var(--sb-blue);
+      margin-bottom: var(--sb-space-md);
+      font-weight: 600;
+    }
+    
+    .sb-code-block {
+      background-color: #2d2d2d;
+      color: #f8f8f2;
+      padding: var(--sb-space-lg);
+      border-radius: var(--sb-border-radius);
+      margin: var(--sb-space-lg) 0;
+      overflow-x: auto;
+      font-family: var(--sb-font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      border: 1px solid #444;
+      position: relative;
+    }
+    
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--sb-space-md);
+    }
+    
+    .copy-btn {
+      background: var(--sb-gray);
+      border: none;
+      color: var(--sb-text);
+      padding: var(--sb-space-xs) var(--sb-space-sm);
+      border-radius: var(--sb-border-radius);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: var(--sb-space-xs);
+    }
+    
+    .copy-btn:hover {
+      background: var(--sb-blue);
+      color: white;
+    }
+    
+    .sb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--sb-space-lg);
+      margin-top: var(--sb-space-lg);
+    }
+    
+    .sb-grid-item {
+      background-color: var(--sb-darker);
+      border: var(--sb-border);
+      border-radius: var(--sb-border-radius);
+      padding: var(--sb-space-lg);
+      transition: all 0.3s;
+    }
+    
+    .sb-grid-item:hover {
+      transform: translateY(-5px);
+      border-color: var(--sb-blue);
+    }
+    
+    .sb-grid-icon {
+      background: linear-gradient(135deg, var(--sb-blue), var(--sb-purple));
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: var(--sb-space-md);
+    }
+    
+    .sb-grid-title {
+      font-size: 18px;
+      color: var(--sb-white);
+      margin-bottom: var(--sb-space-sm);
+      font-weight: 600;
+    }
+    
+    /* Tabs */
+    .sb-tabs {
+      display: flex;
+      background: var(--sb-gray);
+      border-bottom: var(--sb-border);
+      margin-bottom: var(--sb-space-md);
+    }
+    
+    .sb-tab {
+      padding: var(--sb-space-sm) var(--sb-space-md);
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--sb-text);
+      transition: all 0.3s;
+      border-bottom: 2px solid transparent;
+      font-size: 14px;
+    }
+    
+    .sb-tab.active {
+      color: var(--sb-blue);
+      border-bottom: 2px solid var(--sb-blue);
+      background: var(--sb-darker);
+    }
+    
+    .sb-tab-content {
+      display: none;
+      padding: var(--sb-space-lg);
+    }
+    
+    .sb-tab-content.active {
+      display: block;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+      
+      .sb-sidebar {
+        position: fixed;
+        height: calc(100vh - 60px);
+        width: 280px;
+        left: -280px;
+        top: 60px;
+        z-index: 100;
+        transition: all 0.3s;
+      }
+      
+      .sb-sidebar.active {
+        left: 0;
+      }
+      
+      .mobile-header {
+        display: flex;
+        align-items: center;
+        padding: var(--sb-space-md);
+        background: var(--sb-darker);
+        position: sticky;
+        top: 0;
+        z-index: 90;
+        border-bottom: var(--sb-border);
+      }
+    }
+    
+    @media (min-width: 901px) {
+      .mobile-header {
+        display: none;
+      }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .sb-section {
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--sb-blue);
+      z-index: 1000;
+      transition: width 0.2s ease;
+    }
+    
+    /* Active section indicator */
+    .section-indicator {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      height: 20px;
+      width: 4px;
+      background: var(--sb-blue);
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .sb-section:hover .section-indicator {
+      opacity: 1;
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--sb-blue);
+      color: white;
+      padding: var(--sb-space-sm) var(--sb-space-md);
+      border-radius: var(--sb-border-radius);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1000;
+    }
+    
+    .notification.show {
+      opacity: 1;
+    }
+    
+    /* Mermaid diagram container */
+    .mermaid-diagram {
+      background: white;
+      border-radius: var(--sb-border-radius);
+      padding: var(--sb-space-md);
+      margin: var(--sb-space-lg) 0;
+      overflow: auto;
+    }
+    
+    /* Project structure */
+    .project-structure {
+      background: var(--sb-darker);
+      border-radius: var(--sb-border-radius);
+      padding: var(--sb-space-lg);
+      font-family: var(--sb-font-mono);
+      font-size: 14px;
+      line-height: 1.8;
+      margin: var(--sb-space-lg) 0;
+    }
+    
+    .folder {
+      color: #4EC9B0;
+    }
+    
+    .file {
+      color: #9CDCFE;
+    }
+    
+    .comment {
+      color: #6A9955;
+    }
+  </style>
+</head>
+<body>
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator" id="scrollIndicator"></div>
+  
+  <!-- Notification -->
+  <div class="notification" id="notification">Sección cargada correctamente!</div>
+  
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <button class="sb-btn sb-btn-outline" id="menuToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="sb-logo">
+      <i class="fas fa-book sb-logo-icon"></i>
+      <div class="sb-logo-text">Laravel + Vue</div>
+    </div>
+  </div>
+
+  <!-- Storybook Sidebar -->
+  <aside class="sb-sidebar" id="sidebar">
+    <div class="sb-logo">
+      <i class="fas fa-book sb-logo-icon"></i>
+      <div class="sb-logo-text">Guía Profesional</div>
+    </div>
+    
+    <div class="sb-nav-title">Configuración Laravel</div>
+    <ul class="sb-nav-list">
+      <li class="sb-nav-item">
+        <a href="#section1" class="sb-nav-link">
+          <i class="fas fa-server"></i>
+          <span>Configuración Inicial</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section2" class="sb-nav-link">
+          <i class="fas fa-box-open"></i>
+          <span>Paquetes Esenciales</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section3" class="sb-nav-link">
+          <i class="fas fa-cog"></i>
+          <span>Modelos y Traits</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section4" class="sb-nav-link">
+          <i class="fas fa-shield-alt"></i>
+          <span>Configuración CORS</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sb-nav-title">Implementación Backend</div>
+    <ul class="sb-nav-list">
+      <li class="sb-nav-item">
+        <a href="#section5" class="sb-nav-link">
+          <i class="fas fa-code"></i>
+          <span>Controladores Profesionales</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section6" class="sb-nav-link">
+          <i class="fas fa-user-lock"></i>
+          <span>Middleware y Políticas</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section7" class="sb-nav-link">
+          <i class="fas fa-route"></i>
+          <span>Configuración de Rutas</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sb-nav-title">Frontend Vue 3</div>
+    <ul class="sb-nav-list">
+      <li class="sb-nav-item">
+        <a href="#section8" class="sb-nav-link">
+          <i class="fab fa-vuejs"></i>
+          <span>Configuración Vue 3</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section9" class="sb-nav-link">
+          <i class="fas fa-database"></i>
+          <span>Store y API Client</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section10" class="sb-nav-link">
+          <i class="fas fa-road"></i>
+          <span>Vistas y Router</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sb-nav-title">Producción</div>
+    <ul class="sb-nav-list">
+      <li class="sb-nav-item">
+        <a href="#section11" class="sb-nav-link">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Despliegue en Producción</span>
+        </a>
+      </li>
+      <li class="sb-nav-item">
+        <a href="#section12" class="sb-nav-link">
+          <i class="fas fa-file-alt"></i>
+          <span>Documentación Swagger</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="sb-content">
+    <div class="sb-content-header">
+      <h1 class="sb-title">
+        <div class="sb-title-icon">
+          <i class="fas fa-user-lock"></i>
+        </div>
+        <span>Guía Profesional: Laravel Passport + Vue 3</span>
+      </h1>
+      <div class="sb-header-actions">
+        <button class="sb-btn sb-btn-outline">
+          <i class="fas fa-download"></i> PDF
+        </button>
+        <button class="sb-btn sb-btn-primary">
+          <i class="fas fa-code"></i> Ejecutar
+        </button>
+      </div>
+    </div>
+
+    <div class="sb-card">
+      <div class="sb-card-title">
+        <i class="fas fa-lightbulb"></i>
+        <span>Implementación completa para producción</span>
+      </div>
+      <p>
+        Sistema de autenticación robusto con Laravel Passport y Vue 3, siguiendo las mejores prácticas del sector tech. 
+        Incluye gestión de roles, políticas de acceso, documentación API y despliegue en producción.
+      </p>
+    </div>
+
+    <!-- Sección 1: Configuración Inicial de Laravel -->
+    <section id="section1" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-server"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 1: Configuración Inicial de Laravel 12</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Configuración inicial del proyecto Laravel y entorno de desarrollo.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-folder-open"></i>
+              </div>
+              <h3 class="sb-grid-title">Crear proyecto</h3>
+              <p>Crear un nuevo proyecto Laravel 12</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-cog"></i>
+              </div>
+              <h3 class="sb-grid-title">Configurar entorno</h3>
+              <p>Configurar archivo .env y variables de entorno</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-key"></i>
+              </div>
+              <h3 class="sb-grid-title">Generar clave</h3>
+              <p>Generar clave de aplicación con Artisan</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">Comandos de configuración</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code># Crear proyecto Laravel
+composer create-project laravel/laravel:^12.0 blog-api
+
+# Acceder al directorio
+cd blog-api
+
+# Copiar archivo de entorno
+cp .env.example .env
+
+# Generar clave de aplicación
+php artisan key:generate</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://laravel.com/docs/12.x/installation" target="_blank" style="color: var(--sb-blue);">Laravel Installation</a></p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-cogs"></i>
+              <span>Configuración de base de datos (.env)</span>
+            </div>
+            <pre><code>DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=blog_api
+DB_USERNAME=root
+DB_PASSWORD=</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 2: Instalar Paquetes Esenciales -->
+    <section id="section2" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 2: Instalar y Configurar Paquetes Esenciales</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Instalación de paquetes esenciales para autenticación y gestión de permisos.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fab fa-laravel"></i>
+              </div>
+              <h3 class="sb-grid-title">Laravel Passport</h3>
+              <p>Autenticación OAuth2 para APIs</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h3 class="sb-grid-title">Spatie Permissions</h3>
+              <p>Gestión de roles y permisos</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">Instalación de dependencias</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code># Instalar Passport y Spatie Permissions
+composer require laravel/passport spatie/laravel-permission
+
+# Publicar configuraciones
+php artisan vendor:publish --provider="Laravel\Passport\PassportServiceProvider"
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+
+# Ejecutar migraciones
+php artisan migrate
+php artisan passport:install</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong></p>
+          <ul>
+            <li><a href="https://laravel.com/docs/12.x/passport" target="_blank" style="color: var(--sb-blue);">Laravel Passport</a></li>
+            <li><a href="https://spatie.be/docs/laravel-permission/v5/introduction" target="_blank" style="color: var(--sb-blue);">Spatie Permissions</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 3: Configuración de Modelos y Traits -->
+    <section id="section3" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 3: Configuración de Modelos y Traits</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Configuración de modelos y traits para autenticación y gestión de permisos.</p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-user"></i>
+              <span>Modelo User</span>
+            </div>
+            <p>Implementación de traits para Passport y Spatie Permissions.</p>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">app/Models/User.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    
+    // ...
+}</code></pre>
+          </div>
+
+          <div class="sb-code-block" style="margin-top: var(--sb-space-lg)">
+            <div class="code-header">
+              <div class="code-title">app/Providers/AuthServiceProvider.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>use Laravel\Passport\Passport;
+
+public function boot(): void
+{
+    $this->registerPolicies();
+    
+    Passport::routes();
+    Passport::tokensExpireIn(now()->addDays(15));
+    Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://laravel.com/docs/12.x/passport#frontend-quickstart" target="_blank" style="color: var(--sb-blue);">Passport Setup</a></p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-shield-alt"></i>
+              <span>Configuración de guardia API (config/auth.php)</span>
+            </div>
+            <pre><code>'guards' => [
+    'api' => [
+        'driver' => 'passport',
+        'provider' => 'users',
+    ],
+],</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 4: Configuración de CORS -->
+    <section id="section4" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 4: Configuración de CORS</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Configuración de CORS para comunicación segura entre frontend y backend.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <h3 class="sb-grid-title">Orígenes permitidos</h3>
+              <p>Especificar dominios autorizados</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-lock"></i>
+              </div>
+              <h3 class="sb-grid-title">Métodos permitidos</h3>
+              <p>Definir métodos HTTP permitidos</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">app/Http/Kernel.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>protected $middleware = [
+    \Illuminate\Http\Middleware\HandleCors::class,
+    // ...
+];</code></pre>
+          </div>
+
+          <div class="sb-code-block" style="margin-top: var(--sb-space-lg)">
+            <div class="code-header">
+              <div class="code-title">config/cors.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>return [
+    'paths' => ['api/*', 'oauth/*'],
+    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:5173')],
+    'allowed_methods' => ['*'],
+    'allowed_headers' => ['*'],
+    'exposed_headers' => [],
+    'max_age' => 0,
+    'supports_credentials' => true,
+];</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://laravel.com/docs/12.x/middleware#cors" target="_blank" style="color: var(--sb-blue);">Laravel CORS</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 5: Controladores Profesionales -->
+    <section id="section5" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 5: Implementación de Controladores Profesionales</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Implementación de controladores para autenticación y gestión de recursos.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-key"></i>
+              </div>
+              <h3 class="sb-grid-title">AuthController</h3>
+              <p>Registro, login y logout</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-newspaper"></i>
+              </div>
+              <h3 class="sb-grid-title">PostController</h3>
+              <p>Gestión CRUD de posts</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">app/Http/Controllers/AuthController.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+
+class AuthController extends Controller
+{
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        // Asignar rol por defecto
+        $user->assignRole('writer');
+
+        return response()->json(['message' => 'User created'], 201);
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (!auth()->attempt($credentials)) {
+            throw ValidationException::withMessages([
+                'email' => [trans('auth.failed')],
+            ]);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $tokenResult = $user->createToken('Personal Access Token', ['post:manage']);
+
+        return response()->json([
+            'access_token' => $tokenResult->accessToken,
+            'token_type' => 'Bearer',
+            'expires_in' => $tokenResult->token->expires_at->timestamp
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://laravel.com/docs/12.x/eloquent" target="_blank" style="color: var(--sb-blue);">Eloquent ORM</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 6: Middleware y Políticas de Acceso -->
+    <section id="section6" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-user-lock"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 6: Middleware y Políticas de Acceso</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Implementación de políticas de acceso y middleware para control de permisos.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h3 class="sb-grid-title">PostPolicy</h3>
+              <p>Políticas para gestión de posts</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-filter"></i>
+              </div>
+              <h3 class="sb-grid-title">Middleware</h3>
+              <p>Filtros para control de scopes</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">app/Policies/PostPolicy.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>public function viewAny(User $user)
+{
+    return $user->hasPermissionTo('post:view');
+}
+
+public function create(User $user)
+{
+    return $user->hasPermissionTo('post:create');
+}
+
+public function update(User $user, Post $post)
+{
+    return $user->hasPermissionTo('post:edit') && 
+           $user->id === $post->user_id;
+}
+
+public function delete(User $user, Post $post)
+{
+    return $user->hasPermissionTo('post:delete') && 
+           ($user->id === $post->user_id || $user->hasRole('admin'));
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://laravel.com/docs/12.x/authorization#creating-policies" target="_blank" style="color: var(--sb-blue);">Laravel Policies</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 7: Configuración de Rutas API -->
+    <section id="section7" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-route"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 7: Configuración de Rutas API</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Configuración de rutas API protegidas con middleware de autenticación.</p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-lock"></i>
+              <span>Rutas Protegidas</span>
+            </div>
+            <ul>
+              <li>Registro y login públicos</li>
+              <li>Logout y user info protegidos</li>
+              <li>Rutas de posts protegidas con scopes</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">routes/api.php</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware(['auth:api'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', fn (Request $request) => $request->user());
+    
+    // Rutas protegidas con scopes y políticas
+    Route::middleware(['scopes:post:manage'])->group(function () {
+        Route::apiResource('posts', PostController::class);
+    });
+});</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://laravel.com/docs/12.x/routing#route-groups" target="_blank" style="color: var(--sb-blue);">API Routing</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 8: Configuración de Vue 3 -->
+    <section id="section8" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fab fa-vuejs"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 8: Configuración de Vue 3 con TypeScript</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Configuración del proyecto Vue 3 con TypeScript para el frontend.</p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-folder"></i>
+              <span>Estructura de archivos</span>
+            </div>
+            <pre class="project-structure"><span class="folder">src/</span>
+├── <span class="folder">composables/</span>
+│   └── <span class="file">useApi.ts</span>
+├── <span class="folder">stores/</span>
+│   └── <span class="file">auth.ts</span>
+├── <span class="folder">router/</span>
+│   └── <span class="file">index.ts</span>
+├── <span class="folder">views/</span>
+│   ├── <span class="file">LoginView.vue</span>
+│   └── <span class="file">DashboardView.vue</span>
+└── <span class="file">main.ts</span></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">Crear proyecto Vue</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code># Crear proyecto Vue con TypeScript
+npm create vue@latest frontend
+
+# Acceder al directorio
+cd frontend
+
+# Instalar dependencias
+npm install
+npm install axios pinia @pinia-plugin-persistedstate/nuxt vue-router@4</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://vuejs.org/guide/extras/composition-api-faq.html" target="_blank" style="color: var(--sb-blue);">Vue Composition API</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 9: Store y API Client -->
+    <section id="section9" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-database"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 9: Implementación de Store y API Client</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Implementación de store de autenticación y cliente API con interceptores.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-store"></i>
+              </div>
+              <h3 class="sb-grid-title">Auth Store</h3>
+              <p>Gestión de estado de autenticación</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-sync-alt"></i>
+              </div>
+              <h3 class="sb-grid-title">API Client</h3>
+              <p>Interceptores para manejo de tokens</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">src/composables/useApi.ts</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>import axios, { AxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/stores/auth';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+api.interceptors.request.use((config: AxiosRequestConfig) => {
+  const authStore = useAuthStore();
+  if (authStore.token && config.headers) {
+    config.headers.Authorization = `Bearer ${authStore.token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const authStore = useAuthStore();
+      
+      try {
+        await authStore.refreshToken();
+        return api(originalRequest);
+      } catch (refreshError) {
+        authStore.logout();
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default api;</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p>Best Practices para Producción:</p>
+          <ul>
+            <li>Manejo automático de token refresh</li>
+            <li>Interceptores para manejo de errores</li>
+            <li>Almacenamiento seguro de tokens</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 10: Vistas y Router -->
+    <section id="section10" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-road"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 10: Vistas y Router con Protección</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Implementación de vistas y router con protección de rutas y scopes.</p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-shield-alt"></i>
+              <span>Protección de rutas</span>
+            </div>
+            <ul>
+              <li>Guardias de navegación</li>
+              <li>Verificación de autenticación</li>
+              <li>Validación de scopes</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">src/router/index.ts</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+
+const routes = [
+  { path: '/login', name: 'Login', component: () => import('@/views/LoginView.vue') },
+  { 
+    path: '/dashboard', 
+    name: 'Dashboard',
+    component: () => import('@/views/DashboardView.vue'),
+    meta: { requiresAuth: true, scopes: ['post:manage'] }
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+});
+
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore();
+  
+  if (to.meta.requiresAuth && !authStore.token) {
+    return { name: 'Login', query: { redirect: to.fullPath } };
+  }
+  
+  if (authStore.token && !authStore.user) {
+    await authStore.fetchUser();
+  }
+  
+  if (to.meta.scopes) {
+    const hasScope = authStore.user?.scopes?.some(scope => 
+      to.meta.scopes.includes(scope)
+    );
+    
+    if (!hasScope) return { name: 'Unauthorized' };
+  }
+});
+
+export default router;</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://router.vuejs.org/guide/advanced/navigation-guards.html" target="_blank" style="color: var(--sb-blue);">Vue Router Navigation Guards</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 11: Despliegue en Producción -->
+    <section id="section11" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 11: Despliegue en Producción</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Configuración para despliegue en entornos de producción.</p>
+          
+          <div class="sb-grid">
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-server"></i>
+              </div>
+              <h3 class="sb-grid-title">Configuración Nginx</h3>
+              <p>Seguridad y optimización</p>
+            </div>
+            <div class="sb-grid-item">
+              <div class="sb-grid-icon">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <h3 class="sb-grid-title">Optimización</h3>
+              <p>Caché y compilación de assets</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">.env.production</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code># Laravel
+APP_ENV=production
+APP_DEBUG=false
+SESSION_SECURE_COOKIE=true
+
+# Vue
+VITE_API_URL=https://api.tudominio.com</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p>Best Practices para Entornos Reales:</p>
+          <ul>
+            <li>Configuración de seguridad en servidores</li>
+            <li>Optimización de builds</li>
+            <li>Manejo de variables de entorno</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 12: Documentación Swagger -->
+    <section id="section12" class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h2 class="sb-section-title">Paso 12: Documentación con Swagger/OpenAPI</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-tab="preview">Vista Previa</div>
+          <div class="sb-tab" data-tab="code">Código</div>
+          <div class="sb-tab" data-tab="docs">Documentación</div>
+        </div>
+
+        <div class="sb-tab-content active" id="previewTab">
+          <p>Generación de documentación API con Swagger/OpenAPI.</p>
+          
+          <div class="sb-card">
+            <div class="sb-card-title">
+              <i class="fas fa-book"></i>
+              <span>Beneficios</span>
+            </div>
+            <ul>
+              <li>Documentación interactiva</li>
+              <li>Pruebas en tiempo real</li>
+              <li>Integración con frontend</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="codeTab">
+          <div class="sb-code-block">
+            <div class="code-header">
+              <div class="code-title">Anotación de controladores</div>
+              <button class="copy-btn">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+            <pre><code>/**
+ * @OA\Post(
+ *     path="/api/login",
+ *     tags={"Authentication"},
+ *     summary="User login",
+ *     operationId="login",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"email","password"},
+ *             @OA\Property(property="email", type="string", format="email"),
+ *             @OA\Property(property="password", type="string", format="password")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="access_token", type="string"),
+ *             @OA\Property(property="token_type", type="string", example="Bearer"),
+ *             @OA\Property(property="expires_in", type="integer")
+ *         )
+ *     ),
+ *     @OA\Response(response=401, description="Unauthorized")
+ * )
+ */
+public function login(Request $request) { ... }</code></pre>
+          </div>
+        </div>
+
+        <div class="sb-tab-content" id="docsTab">
+          <h3>Documentación Técnica</h3>
+          <p><strong>Documentación Oficial:</strong> <a href="https://github.com/DarkaOnLine/L5-Swagger" target="_blank" style="color: var(--sb-blue);">L5-Swagger</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagrama de Arquitectura -->
+    <section class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-project-diagram"></i>
+        </div>
+        <h2 class="sb-section-title">Diagrama de Arquitectura</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="mermaid-diagram">
+          <pre>graph TD
+    A[Vue Frontend] -->|HTTPS| B(Laravel API)
+    B --> C[MySQL Database]
+    B --> D[Redis Cache]
+    D --> E[Token Storage]
+    B --> F[Passport OAuth]
+    F --> G[Scopes & Permissions]</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Estructura Final del Proyecto -->
+    <section class="sb-section">
+      <div class="sb-section-header">
+        <div class="sb-section-icon">
+          <i class="fas fa-folder-tree"></i>
+        </div>
+        <h2 class="sb-section-title">Estructura Final del Proyecto</h2>
+      </div>
+      <div class="section-indicator"></div>
+
+      <div class="sb-section-content">
+        <div class="project-structure">
+          <pre><span class="folder">blog-api/</span> <span class="comment">(Laravel)</span>
+├── <span class="folder">app/</span>
+│   ├── <span class="folder">Http/</span>
+│   │   ├── <span class="folder">Controllers/</span>
+│   │   │   ├── <span class="file">AuthController.php</span>
+│   │   │   └── <span class="file">PostController.php</span>
+│   │   └── <span class="folder">Middleware/</span>
+│   ├── <span class="folder">Models/</span>
+│   │   ├── <span class="file">User.php</span>
+│   │   ├── <span class="file">Post.php</span>
+│   │   └── <span class="file">Role.php</span>
+│   └── <span class="folder">Policies/</span>
+├── <span class="folder">config/</span>
+├── <span class="folder">database/</span>
+│   ├── <span class="folder">migrations/</span>
+│   └── <span class="folder">seeders/</span>
+├── <span class="folder">routes/</span>
+└── <span class="folder">tests/</span>
+
+<span class="folder">frontend/</span> <span class="comment">(Vue)</span>
+├── <span class="folder">public/</span>
+├── <span class="folder">src/</span>
+│   ├── <span class="folder">composables/</span>
+│   ├── <span class="folder">stores/</span>
+│   ├── <span class="folder">router/</span>
+│   ├── <span class="folder">views/</span>
+│   └── <span class="file">main.ts</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <div style="text-align: center; margin-top: var(--sb-space-xl); color: var(--sb-text-secondary); font-size: 14px;">
+      <p>
+        <a href="https://github.com/SantanderAcuna" style="color: var(--sb-blue); text-decoration: none;">© Desarrollado por Jose Acuña</a>
+        <script>document.write(new Date().getFullYear());</script> | 
+        Guía Profesional: Laravel Passport + Vue 3
+      </p>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Mobile menu toggle
+      const menuToggle = document.getElementById("menuToggle");
+      const sidebar = document.getElementById("sidebar");
+      
+      if (menuToggle) {
+        menuToggle.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
+        });
+      }
+      
+      // Tab functionality
+      document.querySelectorAll('.sb-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          const parentSection = this.closest('.sb-section-content');
+          
+          // Remove active class from all tabs in this section
+          parentSection.querySelectorAll('.sb-tab').forEach(t => {
+            t.classList.remove('active');
+          });
+          
+          // Add active class to clicked tab
+          this.classList.add('active');
+          
+          // Hide all tab content in this section
+          parentSection.querySelectorAll('.sb-tab-content').forEach(content => {
+            content.classList.remove('active');
+          });
+          
+          // Show selected tab content
+          const targetContent = parentSection.querySelector(`#${tabId}Tab`);
+          if (targetContent) {
+            targetContent.classList.add('active');
+          }
+        });
+      });
+      
+      // Copy code functionality
+      const copyButtons = document.querySelectorAll(".copy-btn");
+      copyButtons.forEach(btn => {
+        btn.addEventListener("click", function() {
+          const codeBlock = this.closest(".sb-code-block");
+          const code = codeBlock.querySelector("code").innerText;
+          navigator.clipboard.writeText(code);
+          
+          // Show feedback
+          const originalText = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+          
+          setTimeout(() => {
+            this.innerHTML = originalText;
+          }, 2000);
+        });
+      });
+      
+      // Scroll indicator
+      const scrollIndicator = document.getElementById('scrollIndicator');
+      window.addEventListener('scroll', () => {
+        const scrollTop = document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrollPercent = (scrollTop / scrollHeight) * 100;
+        scrollIndicator.style.width = scrollPercent + '%';
+      });
+      
+      // Navegación por secciones
+      document.querySelectorAll('.sb-nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Obtener el ID de la sección objetivo
+          const targetId = this.getAttribute('href');
+          const targetSection = document.querySelector(targetId);
+          
+          if (targetSection) {
+            // Desplazamiento suave hacia la sección
+            const offset = 100;
+            const targetPosition = targetSection.getBoundingClientRect().top + window.pageYOffset - offset;
+            
+            window.scrollTo({
+              top: targetPosition,
+              behavior: 'smooth'
+            });
+            
+            // Actualizar enlace activo
+            document.querySelectorAll('.sb-nav-link').forEach(link => {
+              link.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Mostrar notificación
+            const notification = document.getElementById('notification');
+            notification.textContent = `Sección: ${targetSection.querySelector('.sb-section-title').textContent}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+              notification.classList.remove('show');
+            }, 2000);
+          }
+        });
+      });
+      
+      // Actualizar enlace activo durante el scroll
+      function updateActiveLink() {
+        const sections = document.querySelectorAll('.sb-section');
+        let currentSection = '';
+        const scrollPosition = window.scrollY + 150;
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            currentSection = section.getAttribute('id');
+          }
+        });
+        
+        if (currentSection) {
+          document.querySelectorAll('.sb-nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${currentSection}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      }
+      
+      // Event listeners
+      window.addEventListener('scroll', updateActiveLink);
+      window.addEventListener('load', updateActiveLink);
+      
+      // Activar la primera sección al cargar
+      if (window.location.hash) {
+        const targetLink = document.querySelector(`.sb-nav-link[href="${window.location.hash}"]`);
+        if (targetLink) {
+          targetLink.classList.add('active');
+        }
+      } else {
+        document.querySelector('.sb-nav-link[href="#section1"]').classList.add('active');
+      }
+    });
+  </script>
+</body>
+</html>
